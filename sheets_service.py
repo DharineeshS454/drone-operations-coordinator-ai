@@ -1,8 +1,13 @@
 import os
 import json
+import pandas as pd
+
 import gspread
 from google.oauth2.service_account import Credentials
 import streamlit as st
+
+SPREADSHEET_ID = "1OK8ZAASHHSf_VGmIJBhJnLdHuNyQxJySjE0asPTCHME
+"
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -21,7 +26,7 @@ def get_client():
 
 def read_sheet(sheet_name):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet(sheet_name)
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet(sheet_name)
     data = sheet.get_all_records()
     return pd.DataFrame(data)
 
@@ -44,7 +49,7 @@ def read_missions():
 
 def update_pilot_status(pilot_name, new_status):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Pilot_Roster")
 
     records = sheet.get_all_records()
     headers = sheet.row_values(1)
@@ -66,7 +71,7 @@ def update_pilot_status(pilot_name, new_status):
 
 def update_drone_status(drone_id, new_status):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Drone_Fleet")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Drone_Fleet")
 
     records = sheet.get_all_records()
 
@@ -79,7 +84,7 @@ def update_drone_status(drone_id, new_status):
 
 def assign_pilot(pilot_name, mission_id):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Pilot_Roster")
 
     records = sheet.get_all_records()
     headers = sheet.row_values(1)
@@ -99,7 +104,7 @@ def assign_pilot(pilot_name, mission_id):
 
 def assign_drone(drone_id, mission_id):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Drone_Fleet")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Drone_Fleet")
 
     records = sheet.get_all_records()
     headers = sheet.row_values(1)
@@ -118,7 +123,7 @@ def assign_drone(drone_id, mission_id):
 
 def clear_pilot_assignment(pilot_name):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Pilot_Roster")
 
     records = sheet.get_all_records()
     headers = sheet.row_values(1)
@@ -138,7 +143,7 @@ def clear_pilot_assignment(pilot_name):
 
 def clear_drone_assignment(drone_id):
     client = get_client()
-    sheet = client.open(SPREADSHEET_NAME).worksheet("Drone_Fleet")
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Drone_Fleet")
 
     records = sheet.get_all_records()
     headers = sheet.row_values(1)
