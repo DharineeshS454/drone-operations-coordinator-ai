@@ -32,6 +32,7 @@ def drone_conflicts(drone, mission):
 
 def find_assignment(mission, pilots, drones):
     matches = []
+    rejection_reasons = set()
 
     for _, pilot in pilots.iterrows():
         pilot_issues = pilot_conflicts(pilot, mission)
@@ -40,12 +41,8 @@ def find_assignment(mission, pilots, drones):
             drone_issues = drone_conflicts(drone, mission)
 
             if pilot_issues or drone_issues:
-                print("❌ Rejected combination:")
-                print("Pilot:", pilot["name"])
-                print("Pilot issues:", pilot_issues)
-                print("Drone:", drone["drone_id"])
-                print("Drone issues:", drone_issues)
-                print("-" * 40)
+                for issue in pilot_issues + drone_issues:
+                    rejection_reasons.add(issue)
                 continue
 
             matches.append({
@@ -54,5 +51,4 @@ def find_assignment(mission, pilots, drones):
                 "location": mission["location"]
             })
 
-    return matches
-
+    return matches, list(rejection_reasons)

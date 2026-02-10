@@ -37,14 +37,17 @@ if user_input:
     # -------- NORMAL ASSIGNMENT --------
     elif "assign" in msg:
         mission = missions.iloc[0]
-        matches = find_assignment(mission, pilots, drones)
+        matches, reasons = find_assignment(mission, pilots, drones)
 
         if matches:
             st.success("✅ Possible assignments found:")
             for m in matches:
                 st.write(m)
         else:
-            st.error("❌ No valid assignments found due to conflicts")
+            st.error("❌ No valid assignments found")
+            st.write("Reasons:")
+            for r in reasons:
+                st.write(f"- {r}")
 
     # -------- AVAILABILITY QUERY --------
     elif "available" in msg:
