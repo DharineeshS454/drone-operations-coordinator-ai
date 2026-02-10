@@ -1,12 +1,16 @@
+from conflicts import detect_conflicts
+
+
 def pilot_conflicts(pilot, mission):
     issues = []
 
     if pilot["status"] != "available":
         issues.append("Pilot not available")
 
-    # FIXED: required_certs is a list
-    if not set(mission["required_certs"]).issubset(set(pilot["certifications"])):
-        issues.append("Certification mismatch")
+    if not set(mission["required_certs"]).issubset(
+        set(pilot["certifications"])
+    ):
+        issues.append("Pilot certification mismatch")
 
     if pilot["location"] != mission["location"]:
         issues.append("Pilot location mismatch")
@@ -20,8 +24,9 @@ def drone_conflicts(drone, mission):
     if drone["status"] != "available":
         issues.append("Drone not available or under maintenance")
 
-    # FIXED: required_skills vs capabilities
-    if not set(mission["required_skills"]).issubset(set(drone["capabilities"])):
+    if not set(mission["required_skills"]).issubset(
+        set(drone["capabilities"])
+    ):
         issues.append("Drone capability mismatch")
 
     if drone["location"] != mission["location"]:
@@ -34,6 +39,12 @@ def find_assignment(mission, pilots, drones):
     matches = []
     rejection_reasons = set()
 
+    # STEP 1: Global conflicts (date overlap)
+    conflict_reasons = detect_conflicts(mission, pilots, drones)
+    if conflict_reasons:
+        return [], conflict_reasons
+
+    # STEP 2: Pilot + Drone compatibility checks
     for _, pilot in pilots.iterrows():
         pilot_issues = pilot_conflicts(pilot, mission)
 
@@ -51,4 +62,8 @@ def find_assignment(mission, pilots, drones):
                 "location": mission["location"]
             })
 
-    return matches, list(rejection_reasons)
+    # STEP 3: Return results
+    if matches:
+        return matches, []
+
+    return [], list(rejection_reasons)

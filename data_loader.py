@@ -13,7 +13,7 @@ def load_data():
     missions = read_missions()
 
     # 🔹 NORMALIZATION (KEEP THIS)
-    pilots["status"] = pilots["status"].str.lower()
+    pilots["status"] = pilots["status"].str.strip().str.lower()
     drones["status"] = drones["status"].str.lower()
 
     # 🔹 LIST CONVERSIONS (KEEP THIS)

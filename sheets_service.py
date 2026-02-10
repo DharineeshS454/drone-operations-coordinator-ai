@@ -1,5 +1,6 @@
+import os
+import json
 import gspread
-import pandas as pd
 from google.oauth2.service_account import Credentials
 
 SCOPES = [
@@ -7,15 +8,20 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-CREDS_FILE = "drone-ops-ai-43253546c101.json"
 SPREADSHEET_NAME = "Drone Operations Data"
 
 
 def get_client():
-    creds = Credentials.from_service_account_file(
-        CREDS_FILE, scopes=SCOPES
+    # Load credentials from environment (Streamlit Secrets / Replit Secrets)
+    creds_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"])
+
+    creds = Credentials.from_service_account_info(
+        creds_info,
+        scopes=SCOPES
     )
+
     return gspread.authorize(creds)
+
 
 
 def read_sheet(sheet_name):
@@ -46,13 +52,21 @@ def update_pilot_status(pilot_name, new_status):
     sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
 
     records = sheet.get_all_records()
+    headers = sheet.row_values(1)
 
-    for idx, row in enumerate(records, start=2):  # start=2 (skip header)
-        if row["name"] == pilot_name:
-            sheet.update_cell(idx, 3, new_status)  # column 3 = status
+    name_col = headers.index("name") + 1
+    status_col = headers.index("status") + 1
+
+    for idx, row in enumerate(records, start=2):
+        sheet_name = row["name"].strip().lower()
+        input_name = pilot_name.strip().lower()
+
+        if input_name == sheet_name:
+            sheet.update_cell(idx, status_col, new_status)
             return True
 
     return False
+
 
 
 def update_drone_status(drone_id, new_status):
@@ -64,6 +78,84 @@ def update_drone_status(drone_id, new_status):
     for idx, row in enumerate(records, start=2):
         if row["drone_id"] == drone_id:
             sheet.update_cell(idx, 3, new_status)
+            return True
+
+    return False
+
+def assign_pilot(pilot_name, mission_id):
+    client = get_client()
+    sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
+
+    records = sheet.get_all_records()
+    headers = sheet.row_values(1)
+
+    name_col = headers.index("name") + 1
+    status_col = headers.index("status") + 1
+    assignment_col = headers.index("current_assignment") + 1
+
+    for idx, row in enumerate(records, start=2):
+        if row["name"].strip().lower() == pilot_name.strip().lower():
+            sheet.update_cell(idx, status_col, "assigned")
+            sheet.update_cell(idx, assignment_col, mission_id)
+            return True
+
+    return False
+
+
+def assign_drone(drone_id, mission_id):
+    client = get_client()
+    sheet = client.open(SPREADSHEET_NAME).worksheet("Drone_Fleet")
+
+    records = sheet.get_all_records()
+    headers = sheet.row_values(1)
+
+    id_col = headers.index("drone_id") + 1
+    status_col = headers.index("status") + 1
+    assignment_col = headers.index("current_assignment") + 1
+
+    for idx, row in enumerate(records, start=2):
+        if row["drone_id"].strip().upper() == drone_id.strip().upper():
+            sheet.update_cell(idx, status_col, "assigned")
+            sheet.update_cell(idx, assignment_col, mission_id)
+            return True
+
+    return False
+
+def clear_pilot_assignment(pilot_name):
+    client = get_client()
+    sheet = client.open(SPREADSHEET_NAME).worksheet("Pilot_Roster")
+
+    records = sheet.get_all_records()
+    headers = sheet.row_values(1)
+
+    name_col = headers.index("name") + 1
+    status_col = headers.index("status") + 1
+    assignment_col = headers.index("current_assignment") + 1
+
+    for idx, row in enumerate(records, start=2):
+        if row["name"].strip().lower() == pilot_name.strip().lower():
+            sheet.update_cell(idx, status_col, "available")
+            sheet.update_cell(idx, assignment_col, "")
+            return True
+
+    return False
+
+
+def clear_drone_assignment(drone_id):
+    client = get_client()
+    sheet = client.open(SPREADSHEET_NAME).worksheet("Drone_Fleet")
+
+    records = sheet.get_all_records()
+    headers = sheet.row_values(1)
+
+    id_col = headers.index("drone_id") + 1
+    status_col = headers.index("status") + 1
+    assignment_col = headers.index("current_assignment") + 1
+
+    for idx, row in enumerate(records, start=2):
+        if row["drone_id"].strip().upper() == drone_id.strip().upper():
+            sheet.update_cell(idx, status_col, "available")
+            sheet.update_cell(idx, assignment_col, "")
             return True
 
     return False

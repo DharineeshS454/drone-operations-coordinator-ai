@@ -105,7 +105,8 @@ if user_input:
        options = urgent_reassign(mission, pilots)
 
        st.warning("⚠️ Urgent reassignment required")
-       st.info("Urgent mode → relaxed constraints applied")
+       st.info(    "I relaxed location constraints to find fallback pilots.\n"
+    "Below are the best available options ranked by suitability:")
 
        if options:
            for opt in options:
@@ -135,28 +136,39 @@ if user_input:
            assign_drone(drone_id, mission_id)
 
            st.success(
-            f"✅ Assigned Pilot {pilot_name} and Drone {drone_id} "
-            f"to mission {mission_id}"
+                 f"✅ Assignment successful!\n\n"
+                 f"• Pilot **{pilot_name}** was selected because they are available and meet mission requirements.\n"
+                 f"• Drone **{drone_id}** is operational and suitable for this mission.\n"
+                 f"• Mission ID: **{mission_id}**"
         )
 
         # Refresh data from source of truth
            pilots, drones, missions = load_data()
 
        else:
-           st.error("❌ No valid assignments found")
-           st.write("Reasons:")
+           st.error("❌ I couldn’t assign a pilot and drone for this mission.")
+
+           st.write("Here’s why:")
            for r in reasons:
-               st.write(f"- {r}")
+               st.write(f"• {r}")
+
+           st.info(  
+                "💡 You can try:\n"
+               "- freeing an assigned pilot or drone\n"
+               "- adjusting mission dates\n"
+                  "- using **urgent reassignment** if this mission cannot wait"
+)
+
 
     # -------- HELP --------
 
     else:
         st.info(
-            "Try:\n"
-            "- available pilots\n"
-            "- pilots in <location>\n"
-            "- pilots with <certification>\n"
-            "- mark pilot <name> on leave\n"
-            "- assign mission\n"
-            "- urgent reassignment"
+"🤖 I can help you with:\n\n"
+    "• **assign mission** – assign a pilot and drone\n"
+    "• **urgent assign mission** – get fallback options\n"
+    "• **available pilots / available drones**\n"
+    "• **pilots in <location> / drones with <capability>**\n"
+    "• **mark pilot <name> on leave**\n"
+    "• **mark drone <id> as under maintenance**"
         )
