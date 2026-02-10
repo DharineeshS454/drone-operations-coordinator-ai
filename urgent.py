@@ -1,27 +1,55 @@
-def urgent_reassign(mission, pilots):
+URGENT_KEYWORDS = [
+    "urgent",
+    "immediately",
+    "tomorrow",
+    "pilot unavailable"
+]
+
+
+def detect_urgent(msg):
+    msg = msg.lower()
+    return any(word in msg for word in URGENT_KEYWORDS)
+
+
+def score_pilot_urgent(pilot, mission):
+    """
+    Higher score = better fallback pilot
+    """
+    score = 0
+
+    # 1️⃣ Availability (mandatory)
+    if pilot["status"].lower() == "available":
+        score += 5
+    else:
+        return 0  # hard reject
+
+    # 2️⃣ Certification match (mission["required_certs"] is a LIST)
+    cert_match = len(
+        set(mission["required_certs"]) &
+        set(pilot["certifications"])
+    )
+    score += cert_match * 3
+
+    # 3️⃣ Location bonus (not mandatory)
+    if pilot["location"] == mission["location"]:
+        score += 2
+
+    return score
+
+
+def urgent_reassign(mission, pilots, top_n=3):
     ranked = []
 
     for _, pilot in pilots.iterrows():
-        # Skip unavailable pilots
-        if pilot["status"] != "available":
-            continue
+        score = score_pilot_urgent(pilot, mission)
 
-        score = 0
+        if score > 0:
+            ranked.append({
+                "pilot": pilot["name"],
+                "score": score,
+                "location": pilot["location"],
+                "certifications": pilot["certifications"]
+            })
 
-        # Location preference (not mandatory)
-        if pilot["location"] == mission["location"]:
-            score += 2
-
-        # FIX ✅: required_certs is a LIST
-        if set(mission["required_certs"]).intersection(set(pilot["certifications"])):
-            score += 3
-
-        ranked.append({
-            "pilot": pilot["name"],
-            "score": score,
-            "location": pilot["location"]
-        })
-
-    # Highest score first
     ranked.sort(key=lambda x: x["score"], reverse=True)
-    return ranked
+    return ranked[:top_n]
