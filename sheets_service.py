@@ -6,8 +6,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import streamlit as st
 
-SPREADSHEET_ID = "1OK8ZAASHHSf_VGmIJBhJnLdHuNyQxJySjE0asPTCHME
-"
+SPREADSHEET_ID = "1OK8ZAASHHSf_VGmIJBhJnLdHuNyQxJySjE0asPTCHME"
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
