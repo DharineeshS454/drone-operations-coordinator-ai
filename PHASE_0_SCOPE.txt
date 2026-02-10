@@ -1,0 +1,10 @@
+PHASE 0 – SCOPE LOCK
+
+• One pilot + one drone per mission
+• Google Sheets is the single source of truth
+• Normal mode = strict rules
+• Urgent mode = relaxed rules
+• Rule-based logic only (no ML)
+
+Scope is frozen before implementation.
+Any changes must be documented.
