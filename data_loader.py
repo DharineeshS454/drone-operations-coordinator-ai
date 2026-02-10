@@ -5,7 +5,7 @@ def load_data():
     drones = pd.read_csv("drone_fleet.csv")
     missions = pd.read_csv("missions.csv")
 
-    # Normalize text
+    # Normalize status
     pilots["status"] = pilots["status"].str.lower()
     drones["status"] = drones["status"].str.lower()
 
@@ -15,6 +15,14 @@ def load_data():
     )
 
     drones["capabilities"] = drones["capabilities"].fillna("").apply(
+        lambda x: [c.strip() for c in x.split(",")]
+    )
+
+    missions["required_certs"] = missions["required_certs"].fillna("").apply(
+        lambda x: [c.strip() for c in x.split(",")]
+    )
+
+    missions["required_skills"] = missions["required_skills"].fillna("").apply(
         lambda x: [c.strip() for c in x.split(",")]
     )
 
