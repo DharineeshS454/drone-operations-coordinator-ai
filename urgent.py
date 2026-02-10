@@ -2,16 +2,26 @@ def urgent_reassign(mission, pilots):
     ranked = []
 
     for _, pilot in pilots.iterrows():
+        # Skip unavailable pilots
         if pilot["status"] != "available":
             continue
 
         score = 0
+
+        # Location preference (not mandatory)
         if pilot["location"] == mission["location"]:
             score += 2
-        if mission["required_certification"] in pilot["certifications"]:
+
+        # FIX ✅: required_certs is a LIST
+        if set(mission["required_certs"]).intersection(set(pilot["certifications"])):
             score += 3
 
-        ranked.append((score, pilot["name"]))
+        ranked.append({
+            "pilot": pilot["name"],
+            "score": score,
+            "location": pilot["location"]
+        })
 
-    ranked.sort(reverse=True)
-    return ranked[:3]
+    # Highest score first
+    ranked.sort(key=lambda x: x["score"], reverse=True)
+    return ranked
