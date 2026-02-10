@@ -4,7 +4,8 @@ def pilot_conflicts(pilot, mission):
     if pilot["status"] != "available":
         issues.append("Pilot not available")
 
-    if mission["required_certification"] not in pilot["certifications"]:
+    # FIXED: required_certs is a list
+    if not set(mission["required_certs"]).issubset(set(pilot["certifications"])):
         issues.append("Certification mismatch")
 
     if pilot["location"] != mission["location"]:
@@ -19,7 +20,8 @@ def drone_conflicts(drone, mission):
     if drone["status"] != "available":
         issues.append("Drone not available or under maintenance")
 
-    if mission["required_capability"] not in drone["capabilities"]:
+    # FIXED: required_skills vs capabilities
+    if not set(mission["required_skills"]).issubset(set(drone["capabilities"])):
         issues.append("Drone capability mismatch")
 
     if drone["location"] != mission["location"]:
