@@ -1,29 +1,36 @@
 import pandas as pd
 
-def load_data():
-    pilots = pd.read_csv("pilot_roster.csv")
-    drones = pd.read_csv("drone_fleet.csv")
-    missions = pd.read_csv("missions.csv")
+from sheets_service import (
+    read_pilots,
+    read_drones,
+    read_missions
+)
 
-    # Normalize status
+def load_data():
+    # 🔹 SOURCE CHANGED (Sheets instead of CSV)
+    pilots = read_pilots()
+    drones = read_drones()
+    missions = read_missions()
+
+    # 🔹 NORMALIZATION (KEEP THIS)
     pilots["status"] = pilots["status"].str.lower()
     drones["status"] = drones["status"].str.lower()
 
-    # Convert lists
+    # 🔹 LIST CONVERSIONS (KEEP THIS)
     pilots["certifications"] = pilots["certifications"].fillna("").apply(
-        lambda x: [c.strip() for c in x.split(",")]
+        lambda x: [c.strip() for c in x.split(",") if c.strip()]
     )
 
     drones["capabilities"] = drones["capabilities"].fillna("").apply(
-        lambda x: [c.strip() for c in x.split(",")]
+        lambda x: [c.strip() for c in x.split(",") if c.strip()]
     )
 
     missions["required_certs"] = missions["required_certs"].fillna("").apply(
-        lambda x: [c.strip() for c in x.split(",")]
+        lambda x: [c.strip() for c in x.split(",") if c.strip()]
     )
 
     missions["required_skills"] = missions["required_skills"].fillna("").apply(
-        lambda x: [c.strip() for c in x.split(",")]
+        lambda x: [c.strip() for c in x.split(",") if c.strip()]
     )
 
     return pilots, drones, missions
