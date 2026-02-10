@@ -102,6 +102,7 @@ if user_input:
            st.stop()
  
        mission = missions.iloc[0]
+       
        options = urgent_reassign(mission, pilots)
 
        st.warning("⚠️ Urgent reassignment required")

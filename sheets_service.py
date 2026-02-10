@@ -2,25 +2,20 @@ import os
 import json
 import gspread
 from google.oauth2.service_account import Credentials
+import streamlit as st
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
-SPREADSHEET_NAME = "Drone Operations Data"
-
-
 def get_client():
-    # Load credentials from environment (Streamlit Secrets / Replit Secrets)
-    creds_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"])
-
     creds = Credentials.from_service_account_info(
-        creds_info,
+        st.secrets["GOOGLE_SERVICE_ACCOUNT"],
         scopes=SCOPES
     )
-
     return gspread.authorize(creds)
+
 
 
 
